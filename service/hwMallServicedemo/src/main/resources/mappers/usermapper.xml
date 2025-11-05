@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.UserDao">
+
+    <!-- 根据用户ID查询用户 -->
+    <select id="getUserById" parameterType="int" resultType="com.peng.hwmallservicedemo.model.user.userdao">
+        SELECT user_id, username, password, phone, email 
+        FROM user 
+        WHERE user_id = #{user_id}
+    </select>
+
+    <!-- 查询所有用户 -->
+    <select id="getAllUsers" resultType="com.peng.hwmallservicedemo.model.user.userdao">
+        SELECT user_id, username, password, phone, email 
+        FROM user
+    </select>
+
+    <!-- 测试数据库连接 - 查询用户表记录数 -->
+    <select id="getUserCount" resultType="int">
+        SELECT COUNT(*) FROM user
+    </select>
+
+    <!-- 插入测试用户 -->
+    <insert id="insertTestUser" parameterType="com.peng.hwmallservicedemo.model.user.userdao">
+        INSERT INTO user (username, password, phone, email) 
+        VALUES (#{username}, #{password}, #{phone}, #{email})
+    </insert>
+
+</mapper>
