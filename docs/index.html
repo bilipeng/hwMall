@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>简易商城系统 - 首页</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+        background-color: #f5f5f5;
+        color: #333;
+      }
+
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .page-wrapper {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .navbar {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background-color: #1f2933;
+        color: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .navbar-inner {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+      }
+
+      .logo {
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+      }
+
+      .nav-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        font-size: 14px;
+      }
+
+      .nav-link {
+        padding: 4px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.15s ease, color 0.15s ease;
+      }
+
+      .nav-link:hover {
+        background-color: #e5e7eb;
+        color: #111827;
+      }
+
+      .nav-link-primary {
+        background-color: #2563eb;
+        color: #fff;
+      }
+
+      .nav-link-primary:hover {
+        background-color: #1d4ed8;
+        color: #fff;
+      }
+
+      .hero {
+        background: linear-gradient(135deg, #2563eb, #4f46e5);
+        color: #fff;
+      }
+
+      .hero-inner {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 32px 16px 28px;
+        display: grid;
+        grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+        gap: 32px;
+        align-items: center;
+      }
+
+      .hero-title {
+        font-size: 32px;
+        line-height: 1.2;
+        font-weight: 700;
+        margin-bottom: 12px;
+      }
+
+      .hero-subtitle {
+        font-size: 14px;
+        line-height: 1.6;
+        color: #e5e7eb;
+        margin-bottom: 20px;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 14px;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+      }
+
+      .btn-primary {
+        background-color: #fbbf24;
+        color: #111827;
+        font-weight: 600;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+      }
+
+      .btn-primary:hover {
+        background-color: #f59e0b;
+      }
+
+      .btn-ghost {
+        background-color: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        color: #e5e7eb;
+      }
+
+      .btn-ghost:hover {
+        background-color: rgba(15, 23, 42, 0.4);
+      }
+
+      .hero-stats {
+        display: flex;
+        gap: 24px;
+        margin-top: 18px;
+        font-size: 13px;
+        color: #e5e7eb;
+      }
+
+      .hero-stat-number {
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      .hero-banner {
+        background-color: rgba(15, 23, 42, 0.35);
+        border-radius: 14px;
+        padding: 18px 18px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.5);
+      }
+
+      .hero-banner-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .hero-banner-desc {
+        font-size: 13px;
+        color: #e5e7eb;
+      }
+
+      .hero-banner-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        font-size: 12px;
+      }
+
+      .hero-banner-card {
+        background-color: rgba(15, 23, 42, 0.75);
+        border-radius: 10px;
+        padding: 10px 12px;
+      }
+
+      .hero-banner-card-title {
+        font-weight: 600;
+        margin-bottom: 4px;
+        font-size: 12px;
+      }
+
+      .main {
+        flex: 1;
+      }
+
+      .content-inner {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 20px 16px 40px;
+      }
+
+      .search-filter {
+        background-color: #fff;
+        padding: 14px 16px 12px;
+        border-radius: 10px;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 18px;
+      }
+
+      .search-box {
+        flex: 1 1 220px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .search-input {
+        flex: 1;
+        padding: 6px 10px;
+        border-radius: 6px;
+        border: 1px solid #d1d5db;
+        font-size: 14px;
+      }
+
+      .search-input:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.25);
+      }
+
+      .filter-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        font-size: 13px;
+      }
+
+      .filter-select,
+      .price-input {
+        padding: 4px 8px;
+        border-radius: 6px;
+        border: 1px solid #d1d5db;
+        font-size: 13px;
+      }
+
+      .price-range {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .product-section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 10px;
+        margin-top: 6px;
+      }
+
+      .product-section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #111827;
+      }
+
+      .product-section-subtitle {
+        font-size: 13px;
+        color: #6b7280;
+      }
+
+      .product-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .product-card {
+        background-color: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+      }
+
+      .product-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12);
+      }
+
+      .product-image-placeholder {
+        background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+        height: 150px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: #4b5563;
+      }
+
+      .product-body {
+        padding: 10px 12px 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        flex: 1;
+      }
+
+      .product-name {
+        font-size: 14px;
+        font-weight: 500;
+        color: #111827;
+      }
+
+      .product-desc {
+        font-size: 12px;
+        color: #6b7280;
+        height: 32px;
+        overflow: hidden;
+      }
+
+      .product-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 4px;
+      }
+
+      .product-price {
+        font-size: 16px;
+        font-weight: 600;
+        color: #ef4444;
+      }
+
+      .product-category {
+        font-size: 12px;
+        color: #6b7280;
+      }
+
+      .product-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+      }
+
+      .btn-sm {
+        padding: 4px 8px;
+        font-size: 12px;
+        border-radius: 5px;
+      }
+
+      .btn-outline {
+        background-color: #fff;
+        border: 1px solid #d1d5db;
+        color: #374151;
+      }
+
+      .btn-outline:hover {
+        background-color: #f3f4f6;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 1px 6px;
+        border-radius: 999px;
+        font-size: 11px;
+        background-color: #ecfdf3;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+      }
+
+      .footer {
+        border-top: 1px solid #e5e7eb;
+        background-color: #f9fafb;
+        margin-top: auto;
+      }
+
+      .footer-inner {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 12px 16px 18px;
+        font-size: 12px;
+        color: #6b7280;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      @media (max-width: 960px) {
+        .hero-inner {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        .product-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 720px) {
+        .navbar-inner {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .hero-inner {
+          padding-top: 20px;
+        }
+
+        .hero-title {
+          font-size: 24px;
+        }
+
+        .product-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 480px) {
+        .product-grid {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-wrapper">
+      <header class="navbar">
+        <div class="navbar-inner">
+          <div class="logo">简易商城系统</div>
+          <nav class="nav-links">
+            <a href="#" class="nav-link">首页</a>
+            <a href="#products" class="nav-link">商品展示</a>
+            <a href="#" class="nav-link">购物车</a>
+            <a href="#" class="nav-link">订单管理</a>
+            <a href="#" class="nav-link">个人中心</a>
+            <a href="#" class="nav-link nav-link-primary">登录 / 注册</a>
+          </nav>
+        </div>
+      </header>
+
+      <section class="hero">
+        <div class="hero-inner">
+          <div>
+            <h1 class="hero-title">在线选购 · 轻松下单 · 一站式简易商城</h1>
+            <p class="hero-subtitle">
+              支持用户注册登录、购物车管理、订单创建与查询、商品搜索和分类筛选等核心功能。
+              当前页面为基于需求文档实现的静态首页原型，后续可接入 Vue 3 与后端接口。
+            </p>
+            <div class="hero-actions">
+              <button class="btn btn-primary" onclick="scrollToProducts()">开始逛逛</button>
+              <button class="btn btn-ghost">查看我的订单</button>
+            </div>
+            <div class="hero-stats">
+              <div>
+                <div class="hero-stat-number">50+</div>
+                <div>热销商品示例</div>
+              </div>
+              <div>
+                <div class="hero-stat-number">7</div>
+                <div>核心业务模块</div>
+              </div>
+              <div>
+                <div class="hero-stat-number">RESTful</div>
+                <div>前后端分离架构</div>
+              </div>
+            </div>
+          </div>
+          <div class="hero-banner">
+            <div>
+              <div class="hero-banner-title">系统核心流程概览</div>
+              <div class="hero-banner-desc">
+                用户登录后，可浏览商品、加入购物车、创建订单并查看历史订单。支持搜索与分类筛选，后端采用 Spring Boot + MyBatis 提供接口。
+              </div>
+            </div>
+            <div class="hero-banner-grid">
+              <div class="hero-banner-card">
+                <div class="hero-banner-card-title">用户 & 购物车</div>
+                <div>注册 / 登录 · 购物车增删改 · 查看商品数量</div>
+              </div>
+              <div class="hero-banner-card">
+                <div class="hero-banner-card-title">订单 & 支付流程</div>
+                <div>确认收货地址 · 创建订单 · 查看订单列表与状态</div>
+              </div>
+              <div class="hero-banner-card">
+                <div class="hero-banner-card-title">商品展示</div>
+                <div>首页展示精选商品 · 查看详情 · 分页/列表展示</div>
+              </div>
+              <div class="hero-banner-card">
+                <div class="hero-banner-card-title">搜索与筛选</div>
+                <div>支持关键词搜索、分类筛选与价格区间过滤</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <main class="main">
+        <div class="content-inner">
+          <section class="search-filter">
+            <div class="search-box">
+              <input
+                type="text"
+                class="search-input"
+                placeholder="搜索商品名称，例如：手机、耳机、电脑"
+              />
+              <button class="btn btn-outline btn-sm">搜索</button>
+            </div>
+            <div class="filter-group">
+              <select class="filter-select">
+                <option value="">全部分类</option>
+                <option value="digital">数码电子</option>
+                <option value="home">家居生活</option>
+                <option value="clothes">服饰鞋包</option>
+                <option value="food">美食零食</option>
+              </select>
+              <div class="price-range">
+                <input type="number" class="price-input" placeholder="最低价" min="0" />
+                <span>-</span>
+                <input type="number" class="price-input" placeholder="最高价" min="0" />
+              </div>
+              <button class="btn btn-outline btn-sm">筛选</button>
+            </div>
+          </section>
+
+          <section id="products">
+            <div class="product-section-header">
+              <div>
+                <h2 class="product-section-title">精选商品</h2>
+                <p class="product-section-subtitle">以下为静态示例数据，后续可由后端接口返回真实商品信息。</p>
+              </div>
+              <div class="badge">支持首页展示 · 商品详情 · 购物车添加</div>
+            </div>
+
+            <div class="product-grid">
+              <article class="product-card">
+                <div class="product-image-placeholder">商品图片占位</div>
+                <div class="product-body">
+                  <div class="product-name">无线蓝牙耳机</div>
+                  <div class="product-desc">降噪设计，长续航，适合日常通勤与学习使用。</div>
+                  <div class="product-meta">
+                    <div class="product-price">￥199.00</div>
+                    <div class="product-category">数码电子</div>
+                  </div>
+                  <div class="product-actions">
+                    <button class="btn btn-primary btn-sm">加入购物车</button>
+                    <button class="btn btn-outline btn-sm">查看详情</button>
+                  </div>
+                </div>
+              </article>
+
+              <article class="product-card">
+                <div class="product-image-placeholder">商品图片占位</div>
+                <div class="product-body">
+                  <div class="product-name">办公学习笔记本电脑</div>
+                  <div class="product-desc">15.6 英寸窄边框屏幕，适合日常办公、网课与开发学习。</div>
+                  <div class="product-meta">
+                    <div class="product-price">￥4,999.00</div>
+                    <div class="product-category">数码电子</div>
+                  </div>
+                  <div class="product-actions">
+                    <button class="btn btn-primary btn-sm">加入购物车</button>
+                    <button class="btn btn-outline btn-sm">查看详情</button>
+                  </div>
+                </div>
+              </article>
+
+              <article class="product-card">
+                <div class="product-image-placeholder">商品图片占位</div>
+                <div class="product-body">
+                  <div class="product-name">人体工学电脑椅</div>
+                  <div class="product-desc">多档调节靠背与腰托，为长时间学习和办公提供支撑。</div>
+                  <div class="product-meta">
+                    <div class="product-price">￥599.00</div>
+                    <div class="product-category">家居生活</div>
+                  </div>
+                  <div class="product-actions">
+                    <button class="btn btn-primary btn-sm">加入购物车</button>
+                    <button class="btn btn-outline btn-sm">查看详情</button>
+                  </div>
+                </div>
+              </article>
+
+              <article class="product-card">
+                <div class="product-image-placeholder">商品图片占位</div>
+                <div class="product-body">
+                  <div class="product-name">简约学生书桌</div>
+                  <div class="product-desc">带收纳格的木质书桌，适合卧室、书房与出租屋使用。</div>
+                  <div class="product-meta">
+                    <div class="product-price">￥399.00</div>
+                    <div class="product-category">家居生活</div>
+                  </div>
+                  <div class="product-actions">
+                    <button class="btn btn-primary btn-sm">加入购物车</button>
+                    <button class="btn btn-outline btn-sm">查看详情</button>
+                  </div>
+                </div>
+              </article>
+
+              <article class="product-card">
+                <div class="product-image-placeholder">商品图片占位</div>
+                <div class="product-body">
+                  <div class="product-name">基础款运动卫衣</div>
+                  <div class="product-desc">宽松舒适，多色可选，适合校园日常穿搭。</div>
+                  <div class="product-meta">
+                    <div class="product-price">￥129.00</div>
+                    <div class="product-category">服饰鞋包</div>
+                  </div>
+                  <div class="product-actions">
+                    <button class="btn btn-primary btn-sm">加入购物车</button>
+                    <button class="btn btn-outline btn-sm">查看详情</button>
+                  </div>
+                </div>
+              </article>
+
+              <article class="product-card">
+                <div class="product-image-placeholder">商品图片占位</div>
+                <div class="product-body">
+                  <div class="product-name">轻便双肩包</div>
+                  <div class="product-desc">可放下 15.6 英寸电脑，适合通勤与出游。</div>
+                  <div class="product-meta">
+                    <div class="product-price">￥159.00</div>
+                    <div class="product-category">服饰鞋包</div>
+                  </div>
+                  <div class="product-actions">
+                    <button class="btn btn-primary btn-sm">加入购物车</button>
+                    <button class="btn btn-outline btn-sm">查看详情</button>
+                  </div>
+                </div>
+              </article>
+
+              <article class="product-card">
+                <div class="product-image-placeholder">商品图片占位</div>
+                <div class="product-body">
+                  <div class="product-name">休闲坚果零食大礼包</div>
+                  <div class="product-desc">多种坚果组合装，适合宿舍分享或节日送礼。</div>
+                  <div class="product-meta">
+                    <div class="product-price">￥79.00</div>
+                    <div class="product-category">美食零食</div>
+                  </div>
+                  <div class="product-actions">
+                    <button class="btn btn-primary btn-sm">加入购物车</button>
+                    <button class="btn btn-outline btn-sm">查看详情</button>
+                  </div>
+                </div>
+              </article>
+
+              <article class="product-card">
+                <div class="product-image-placeholder">商品图片占位</div>
+                <div class="product-body">
+                  <div class="product-name">保温杯</div>
+                  <div class="product-desc">长效保温，容量适中，适合上课、自习与通勤携带。</div>
+                  <div class="product-meta">
+                    <div class="product-price">￥89.00</div>
+                    <div class="product-category">家居生活</div>
+                  </div>
+                  <div class="product-actions">
+                    <button class="btn btn-primary btn-sm">加入购物车</button>
+                    <button class="btn btn-outline btn-sm">查看详情</button>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <footer class="footer">
+        <div class="footer-inner">
+          <div>© 2025 简易商城系统 · 课程设计示例首页</div>
+          <div>前端：HTML / CSS / JS（可迁移至 Vue 3） · 后端：Spring Boot + MyBatis</div>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      function scrollToProducts() {
+        var section = document.getElementById("products");
+        if (section) {
+          section.scrollIntoView({ behavior: "smooth" });
+        }
+      }
+    </script>
+  </body>
+</html>
