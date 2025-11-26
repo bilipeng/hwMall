@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.peng.hwmallservicedemo.repository.product.ProductRepository">
+
+    <!-- 根据商品ID查询商品信息 -->
+    <select id="getProductById" parameterType="int" resultType="map">
+        SELECT product_id, name, price, stock, description, category_id 
+        FROM product 
+        WHERE product_id = #{product_id}
+    </select>
+
+    <!-- 根据关键词搜索商品 -->
+    <select id="searchByKeyword" parameterType="string" resultType="map">
+        SELECT product_id, name, price, stock, description, category_id 
+        FROM product 
+        WHERE name LIKE CONCAT('%', #{keyword}, '%') 
+           OR description LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY name
+    </select>
+
+    <!-- 根据关键词分页搜索商品 -->
+    <select id="searchByKeywordWithPage" resultType="map">
+        SELECT product_id, name, price, stock, description, category_id 
+        FROM product 
+        WHERE name LIKE CONCAT('%', #{keyword}, '%') 
+           OR description LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY name
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <!-- 统计搜索结果总数 -->
+    <select id="countByKeyword" parameterType="string" resultType="int">
+        SELECT COUNT(*) 
+        FROM product 
+        WHERE name LIKE CONCAT('%', #{keyword}, '%') 
+           OR description LIKE CONCAT('%', #{keyword}, '%')
+    </select>
+
+</mapper>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.peng.hwmallservicedemo.repository.cart.CartRepository">
+
+    <!-- 根据用户ID查询购物车 -->
+    <select id="findByUserId" parameterType="int" resultType="com.peng.hwmallservicedemo.model.cart.Cart">
+        SELECT cart_id, user_id, product_id, quantity 
+        FROM cart 
+        WHERE user_id = #{user_id}
+    </select>
+
+    <!-- 根据用户ID和商品ID查询购物车项 -->
+    <select id="findByUserIdAndProductId" resultType="com.peng.hwmallservicedemo.model.cart.Cart">
+        SELECT cart_id, user_id, product_id, quantity 
+        FROM cart 
+        WHERE user_id = #{user_id} AND product_id = #{product_id}
+    </select>
+
+    <!-- 添加商品到购物车 -->
+    <insert id="save" parameterType="com.peng.hwmallservicedemo.model.cart.Cart" useGeneratedKeys="true" keyProperty="cart_id">
+        INSERT INTO cart (user_id, product_id, quantity) 
+        VALUES (#{user_id}, #{product_id}, #{quantity})
+    </insert>
+
+    <!-- 更新购物车商品数量 -->
+    <update id="update" parameterType="com.peng.hwmallservicedemo.model.cart.Cart">
+        UPDATE cart 
+        SET quantity = #{quantity} 
+        WHERE cart_id = #{cart_id}
+    </update>
+
+    <!-- 删除购物车商品 -->
+    <delete id="delete" parameterType="int">
+        DELETE FROM cart 
+        WHERE cart_id = #{cart_id}
+    </delete>
+
+    <!-- 清空用户购物车 -->
+    <delete id="deleteByUserId" parameterType="int">
+        DELETE FROM cart 
+        WHERE user_id = #{user_id}
+    </delete>
+
+    <!-- 根据购物车ID查询 -->
+    <select id="findById" parameterType="int" resultType="com.peng.hwmallservicedemo.model.cart.Cart">
+        SELECT cart_id, user_id, product_id, quantity 
+        FROM cart 
+        WHERE cart_id = #{cart_id}
+    </select>
+
+    <!-- 获取购物车商品总数 -->
+    <select id="getCartCount" parameterType="int" resultType="int">
+        SELECT COALESCE(SUM(quantity), 0) 
+        FROM cart 
+        WHERE user_id = #{user_id}
+    </select>
+
+    <!-- 获取购物车列表（关联商品信息） -->
+    <select id="getCartListWithProduct" parameterType="int" resultType="com.peng.hwmallservicedemo.model.cart.CartVO">
+        SELECT 
+            c.cart_id AS cartId,
+            c.product_id AS productId,
+            p.name AS productName,
+            p.price AS price,
+            c.quantity AS quantity,
+            p.stock AS stock,
+            (p.price * c.quantity) AS subtotal
+        FROM cart c
+        INNER JOIN product p ON c.product_id = p.product_id
+        WHERE c.user_id = #{user_id}
+        ORDER BY c.cart_id DESC
+    </select>
+
+</mapper>
+
