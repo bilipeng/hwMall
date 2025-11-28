@@ -87,14 +87,15 @@
 ## 商品表（product）
 
 
-| 字段名      | 数据类型      | 约束条件   | 描述                       |
-| ----------- | ------------- | ---------- | -------------------------- |
-| product_id  | INT           | 主键、自增 | 商品唯一标识               |
-| name        | VARCHAR(100)  | 非空       | 商品名称                   |
-| price       | DECIMAL(10,2) | 非空       | 商品价格                   |
-| stock       | INT           | 非空       | 库存数量                   |
-| description | TEXT          |            | 商品描述                   |
-| category_id | INT           | 外键       | 商品分类（关联商品分类表） |
+| 字段名      | 数据类型       | 约束条件   | 描述                       |
+| ----------- | -------------- | ---------- | -------------------------- |
+| product_id  | INT            | 主键、自增 | 商品唯一标识               |
+| name        | VARCHAR(100)   | 非空       | 商品名称                   |
+| price       | DECIMAL(10,2)  | 非空       | 商品价格                   |
+| stock       | INT            | 非空       | 库存数量                   |
+| description | TEXT           |            | 商品描述                   |
+| image_url   | VARCHAR(255)   |            | 商品图片URL                |
+| category_id | INT            | 外键       | 商品分类（关联商品分类表） |
 
 ## 商品分类表（product_category）
 
