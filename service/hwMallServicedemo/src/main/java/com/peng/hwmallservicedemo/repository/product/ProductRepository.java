@@ -31,6 +31,43 @@ public interface ProductRepository {
      * 统计搜索结果总数
      */
     int countByKeyword(@Param("keyword") String keyword);
+
+    /**
+     * 查询所有商品
+     */
+    List<Map<String, Object>> getAllProducts();
+
+    /**
+     * 分页查询所有商品
+     */
+    List<Map<String, Object>> getAllProductsWithPage(
+        @Param("offset") int offset,
+        @Param("pageSize") int pageSize
+    );
+
+    /**
+     * 根据分类ID查询商品
+     */
+    List<Map<String, Object>> getProductsByCategory(@Param("category_id") int categoryId);
+
+    /**
+     * 根据分类ID分页查询商品
+     */
+    List<Map<String, Object>> getProductsByCategoryWithPage(
+        @Param("category_id") int categoryId,
+        @Param("offset") int offset,
+        @Param("pageSize") int pageSize
+    );
+
+    /**
+     * 统计商品总数
+     */
+    int countAllProducts();
+
+    /**
+     * 根据分类统计商品数量
+     */
+    int countByCategory(@Param("category_id") int categoryId);
 }
 
 

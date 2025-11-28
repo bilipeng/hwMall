@@ -1,25 +1,34 @@
-// 路由配置
 import { createRouter, createWebHistory } from 'vue-router'
-import CartView from '@/views/Cart/CartView.vue'
 
 const routes = [
   {
     path: '/',
     name: 'Home',
-    component: () => import('@/App.vue')
+    component: () => import('@/views/HomeView.vue')
   },
   {
     path: '/cart',
     name: 'Cart',
-    component: CartView
+    component: () => import('@/views/Cart/CartView.vue')
+  },
+  // 可以在这里添加更多路由
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/'
   }
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
-  routes
+  history: createWebHistory(import.meta.env.BASE_URL || '/'),
+  routes,
+  scrollBehavior(to, from, savedPosition) {
+    // 返回期望滚动到的位置
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      return { top: 0 }
+    }
+  }
 })
 
 export default router
-
-

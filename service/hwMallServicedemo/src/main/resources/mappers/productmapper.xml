@@ -5,14 +5,14 @@
 
     <!-- 根据商品ID查询商品信息 -->
     <select id="getProductById" parameterType="int" resultType="map">
-        SELECT product_id, name, price, stock, description, category_id 
+        SELECT product_id, name, price, stock, description, category_id,image_url
         FROM product 
         WHERE product_id = #{product_id}
     </select>
 
     <!-- 根据关键词搜索商品 -->
     <select id="searchByKeyword" parameterType="string" resultType="map">
-        SELECT product_id, name, price, stock, description, category_id 
+        SELECT product_id, name, price, stock, description, category_id,image_url
         FROM product 
         WHERE name LIKE CONCAT('%', #{keyword}, '%') 
            OR description LIKE CONCAT('%', #{keyword}, '%')
@@ -21,7 +21,7 @@
 
     <!-- 根据关键词分页搜索商品 -->
     <select id="searchByKeywordWithPage" resultType="map">
-        SELECT product_id, name, price, stock, description, category_id 
+        SELECT product_id, name, price, stock, description, category_id,image_url
         FROM product 
         WHERE name LIKE CONCAT('%', #{keyword}, '%') 
            OR description LIKE CONCAT('%', #{keyword}, '%')
@@ -35,6 +35,51 @@
         FROM product 
         WHERE name LIKE CONCAT('%', #{keyword}, '%') 
            OR description LIKE CONCAT('%', #{keyword}, '%')
+    </select>
+
+    <!-- 查询所有商品 -->
+    <select id="getAllProducts" resultType="map">
+        SELECT product_id, name, price, stock, description, category_id,image_url
+        FROM product 
+        ORDER BY product_id DESC
+    </select>
+
+    <!-- 分页查询所有商品 -->
+    <select id="getAllProductsWithPage" resultType="map">
+        SELECT product_id, name, price, stock, description, category_id,image_url
+        FROM product 
+        ORDER BY product_id DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <!-- 根据分类ID查询商品 -->
+    <select id="getProductsByCategory" parameterType="int" resultType="map">
+        SELECT product_id, name, price, stock, description, category_id,image_url
+        FROM product 
+        WHERE category_id = #{category_id}
+        ORDER BY product_id DESC
+    </select>
+
+    <!-- 根据分类ID分页查询商品 -->
+    <select id="getProductsByCategoryWithPage" resultType="map">
+        SELECT product_id, name, price, stock, description, category_id 
+        FROM product 
+        WHERE category_id = #{category_id}
+        ORDER BY product_id DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <!-- 统计商品总数 -->
+    <select id="countAllProducts" resultType="int">
+        SELECT COUNT(*) 
+        FROM product
+    </select>
+
+    <!-- 根据分类统计商品数量 -->
+    <select id="countByCategory" parameterType="int" resultType="int">
+        SELECT COUNT(*) 
+        FROM product 
+        WHERE category_id = #{category_id}
     </select>
 
 </mapper>
