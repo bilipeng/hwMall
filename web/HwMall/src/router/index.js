@@ -11,6 +11,16 @@ const routes = [
     name: 'Cart',
     component: () => import('@/views/Cart/CartView.vue')
   },
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import('@/views/User/LoginView.vue')
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: () => import('@/views/User/RegisterView.vue')
+  },
   // 可以在这里添加更多路由
   {
     path: '/:pathMatch(.*)*',
