@@ -3,17 +3,26 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.peng.hwmallservicedemo.repository.user.UserRepository">
 
+    <!-- 统一字段映射，确保 user_id 正确填充 -->
+    <resultMap id="UserResultMap" type="com.peng.hwmallservicedemo.model.user.User">
+        <id column="user_id" property="user_id"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="phone" property="phone"/>
+        <result column="email" property="email"/>
+    </resultMap>
+
     <!-- 根据用户名查询用户 -->
-    <select id="findByUsername" parameterType="string" resultType="com.peng.hwmallservicedemo.model.user.User">
-        SELECT user_id, username, password, phone, email 
-        FROM user 
+    <select id="findByUsername" parameterType="string" resultMap="UserResultMap">
+        SELECT user_id, username, password, phone, email
+        FROM user
         WHERE username = #{username}
     </select>
 
     <!-- 根据用户ID查询用户 -->
-    <select id="findById" parameterType="int" resultType="com.peng.hwmallservicedemo.model.user.User">
-        SELECT user_id, username, password, phone, email 
-        FROM user 
+    <select id="findById" parameterType="int" resultMap="UserResultMap">
+        SELECT user_id, username, password, phone, email
+        FROM user
         WHERE user_id = #{user_id}
     </select>
 

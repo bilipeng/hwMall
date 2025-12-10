@@ -131,7 +131,7 @@ const handleSubmit = async () => {
       // 触发登录成功事件
       emit('login-success', response.data)
       
-      // 延迟跳转到首页
+      // 延迟跳转到首页（之前推到 `/` 会被路由重定向回 `/login`）
       setTimeout(() => {
         router.push('/home')
       }, 1000)

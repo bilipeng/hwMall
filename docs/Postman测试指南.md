@@ -339,3 +339,4 @@ INSERT INTO product (name, price, stock, description, category_id) VALUES
 祝测试顺利！如有问题，请查看后端控制台日志获取详细错误信息。
 
 
+

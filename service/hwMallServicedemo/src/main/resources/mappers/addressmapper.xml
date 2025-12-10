@@ -3,21 +3,19 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.peng.hwmallservicedemo.repository.user.AddressRepository">
 
-    <!-- 结果映射 -->
+    <!-- 结果映射：与数据库表 `address` 字段匹配 -->
     <resultMap id="AddressResultMap" type="com.peng.hwmallservicedemo.model.user.Address">
-        <id property="id" column="address_id"/>
+        <id property="id" column="id"/>
         <result property="userId" column="user_id"/>
-        <result property="name" column="recipient"/>
-        <result property="tel" column="phone"/>
-        <result property="address" column="full_address"/>
+        <result property="name" column="name"/>
+        <result property="tel" column="tel"/>
+        <result property="address" column="address"/>
         <result property="createTime" column="create_time"/>
     </resultMap>
 
     <!-- 根据用户ID查询所有地址 -->
     <select id="findByUserId" parameterType="int" resultMap="AddressResultMap">
-        SELECT address_id, user_id, recipient, phone, 
-               CONCAT(province, city, district, detail) as full_address, 
-               create_time
+        SELECT id, user_id, name, tel, address, create_time
         FROM address
         WHERE user_id = #{userId}
         ORDER BY create_time DESC
@@ -25,32 +23,30 @@
 
     <!-- 根据地址ID查询地址 -->
     <select id="findById" parameterType="int" resultMap="AddressResultMap">
-        SELECT address_id, user_id, recipient, phone, 
-               CONCAT(province, city, district, detail) as full_address, 
-               create_time
+        SELECT id, user_id, name, tel, address, create_time
         FROM address
-        WHERE address_id = #{id}
+        WHERE id = #{id}
     </select>
 
     <!-- 保存地址 -->
     <insert id="save" parameterType="com.peng.hwmallservicedemo.model.user.Address" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO address (user_id, recipient, phone, province, city, district, detail)
-        VALUES (#{userId, jdbcType=INTEGER}, #{name}, #{tel}, '默认省份', '默认城市', '默认区县', #{address})
+        INSERT INTO address (user_id, name, tel, address)
+        VALUES (#{userId, jdbcType=INTEGER}, #{name}, #{tel}, #{address})
     </insert>
 
     <!-- 更新地址 -->
     <update id="update" parameterType="com.peng.hwmallservicedemo.model.user.Address">
         UPDATE address
-        SET recipient = #{name},
-            phone = #{tel},
-            detail = #{address}
-        WHERE address_id = #{id}
+        SET name = #{name},
+            tel = #{tel},
+            address = #{address}
+        WHERE id = #{id}
     </update>
 
     <!-- 删除地址 -->
     <delete id="deleteById" parameterType="int">
         DELETE FROM address
-        WHERE address_id = #{id}
+        WHERE id = #{id}
     </delete>
 
 </mapper>

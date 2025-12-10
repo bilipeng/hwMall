@@ -310,12 +310,23 @@ const loadUserInfoFromLocalStorage = () => {
 
 // 加载收货地址列表
 const loadAddresses = async () => {
-  // 移除登录检查，始终尝试获取地址列表
-  const userId = getUserId() || 0
+  const userId = getUserId()
+  if (!userId) {
+    alert('请先登录后再查看收货地址')
+    router.push('/login')
+    return
+  }
   try {
     const response = await getAddresses(userId)
     if (response.code === 200) {
-      addresses.value = response.data || []
+      const list = Array.isArray(response.data) ? response.data : []
+      // 统一字段到前端使用的命名
+      addresses.value = list.map(item => ({
+        id: item.id || item.address_id,
+        name: item.name,
+        tel: item.tel,
+        address: item.address
+      }))
     } else {
       console.error('获取地址列表失败:', response.message)
     }
@@ -442,8 +453,12 @@ const resetAddressForm = () => {
 
 // 添加或编辑收货地址
 const handleAddOrEditAddress = async () => {
-  // 移除登录检查，允许未登录用户添加地址
-  const userId = getUserId() || 0 // 使用0作为默认值
+  const userId = getUserId()
+  if (!userId) {
+    alert('请先登录后再添加收货地址')
+    router.push('/login')
+    return
+  }
 
   try {
     const addressData = {
@@ -453,8 +468,8 @@ const handleAddOrEditAddress = async () => {
     }
 
     let response
-  if (isEditingAddress.value) {
-    // 编辑现有地址
+    if (isEditingAddress.value) {
+      // 编辑现有地址
       response = await updateAddress(currentAddress.id, addressData)
     } else {
       // 添加新地址
