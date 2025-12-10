@@ -107,10 +107,20 @@ const handleSubmit = async () => {
     
     if (response.code === 200) {
       // 登录成功，保存用户信息到localStorage
-      localStorage.setItem('user', JSON.stringify(response.data))
-      localStorage.setItem('userId', response.data.user_id)
-      if (response.data?.token) {
-        localStorage.setItem('token', response.data.token)
+      const userData = response.data
+      localStorage.setItem('user', JSON.stringify(userData))
+      
+      // 确保正确存储用户ID（支持多种字段名）
+      const userId = userData.user_id || userData.userId || userData.id
+      if (userId) {
+        localStorage.setItem('userId', userId.toString())
+        console.log('登录成功，存储用户ID:', userId)
+      } else {
+        console.warn('登录响应中未找到用户ID:', userData)
+      }
+      
+      if (userData?.token) {
+        localStorage.setItem('token', userData.token)
       } else {
         localStorage.removeItem('token')
       }
@@ -123,7 +133,7 @@ const handleSubmit = async () => {
       
       // 延迟跳转到首页
       setTimeout(() => {
-        router.push('/')
+        router.push('/home')
       }, 1000)
     } else {
       message.value = response.message || '登录失败'

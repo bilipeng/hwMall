@@ -42,5 +42,14 @@ public interface UserService {
      * @return 更新结果
      */
     Map<String, Object> updateUserInfo(int userId, User user);
+
+    /**
+     * 更改密码
+     * @param userId 用户ID
+     * @param currentPassword 当前密码
+     * @param newPassword 新密码
+     * @return 更改结果
+     */
+    Map<String, Object> changePassword(int userId, String currentPassword, String newPassword);
 }
 

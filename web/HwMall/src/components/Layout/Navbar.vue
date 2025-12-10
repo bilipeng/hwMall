@@ -1,13 +1,13 @@
 <template>
   <header class="navbar">
     <div class="navbar-inner">
-      <router-link to="/" class="logo">简易商城系统</router-link>
+      <router-link to="/home" class="logo">简易商城系统</router-link>
       <nav class="nav-links">
-        <router-link to="/" class="nav-link">首页</router-link>
+        <router-link to="/home" class="nav-link">首页</router-link>
         <a href="#products" class="nav-link" @click="scrollToProducts">商品展示</a>
         <router-link to="/cart" class="nav-link">购物车</router-link>
         <router-link to="/order" class="nav-link">订单管理</router-link>
-        <router-link to="/user" class="nav-link">个人中心</router-link>
+        <router-link to="/profile" class="nav-link">个人中心</router-link>
         <!-- 未登录时显示登录注册按钮 -->
         <template v-if="!isLoggedIn">
           <router-link to="/login" class="nav-link nav-link-primary">登录</router-link>
@@ -66,8 +66,8 @@ const handleLogout = () => {
   isLoggedIn.value = false
   userInfo.username = ''
   
-  // 跳转到首页或登录页
-  router.push('/')
+  // 跳转到登录页
+  router.push('/login')
 }
 
 // 滚动到商品展示区域

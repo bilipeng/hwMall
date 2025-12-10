@@ -21,6 +21,7 @@
         <mapper resource="mappers/usermapper.xml"></mapper>
         <mapper resource="mappers/cartmapper.xml"></mapper>
         <mapper resource="mappers/productmapper.xml"></mapper>
+        <mapper resource="mappers/addressmapper.xml"></mapper>
     </mappers>
 
 </configuration>

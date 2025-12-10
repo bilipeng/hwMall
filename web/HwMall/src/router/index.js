@@ -3,6 +3,10 @@ import { createRouter, createWebHistory } from 'vue-router'
 const routes = [
   {
     path: '/',
+    redirect: '/login'
+  },
+  {
+    path: '/home',
     name: 'Home',
     component: () => import('@/views/HomeView.vue')
   },
@@ -20,6 +24,11 @@ const routes = [
     path: '/register',
     name: 'Register',
     component: () => import('@/views/User/RegisterView.vue')
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: () => import('@/views/User/ProfileView.vue')
   },
   // 可以在这里添加更多路由
   {

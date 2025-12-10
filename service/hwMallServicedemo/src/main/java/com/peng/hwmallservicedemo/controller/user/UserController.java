@@ -59,14 +59,38 @@ public class UserController {
     @PutMapping("/{user_id}")
     public Map<String, Object> updateUserInfo(
             @PathVariable("user_id") int userId,
-            @RequestBody Map<String, String> request) {
+            @RequestBody Map<String, Object> request) {
         User user = new User();
-        user.setUsername(request.getOrDefault("username", ""));
-        user.setPassword(request.getOrDefault("password", ""));
-        user.setPhone(request.getOrDefault("phone", ""));
-        user.setEmail(request.getOrDefault("email", ""));
+        // 处理phone字段：如果存在则设置，否则为null
+        if (request.containsKey("phone")) {
+            Object phoneObj = request.get("phone");
+            user.setPhone(phoneObj != null ? phoneObj.toString() : null);
+        } else {
+            user.setPhone(null); // 表示不更新此字段
+        }
+        // 处理email字段：如果存在则设置，否则为null
+        if (request.containsKey("email")) {
+            Object emailObj = request.get("email");
+            user.setEmail(emailObj != null ? emailObj.toString() : null);
+        } else {
+            user.setEmail(null); // 表示不更新此字段
+        }
 
         return userService.updateUserInfo(userId, user);
+    }
+
+    /**
+     * 更改密码
+     * POST /api/users/:user_id/change-password
+     */
+    @PostMapping("/{user_id}/change-password")
+    public Map<String, Object> changePassword(
+            @PathVariable("user_id") int userId,
+            @RequestBody Map<String, String> request) {
+        String currentPassword = request.getOrDefault("currentPassword", "");
+        String newPassword = request.getOrDefault("newPassword", "");
+
+        return userService.changePassword(userId, currentPassword, newPassword);
     }
 }
 

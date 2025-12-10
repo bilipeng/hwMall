@@ -37,10 +37,17 @@ const loading = ref(false)
 
 // 从localStorage获取用户ID（实际项目中应该从登录状态获取）
 const getUserId = () => {
-  const userInfo = localStorage.getItem('userInfo')
-  if (userInfo) {
-    const user = JSON.parse(userInfo)
-    return user.userId || user.user_id || 1 // 默认使用1作为测试
+  // 优先从userId键获取
+  const userId = localStorage.getItem('userId')
+  if (userId) {
+    return parseInt(userId)
+  }
+  
+  // 其次从user键获取
+  const userStr = localStorage.getItem('user')
+  if (userStr) {
+    const user = JSON.parse(userStr)
+    return user.user_id || user.userId || 1 // 默认使用1作为测试
   }
   return 1 // 默认用户ID，实际应该要求用户登录
 }

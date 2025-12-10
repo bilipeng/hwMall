@@ -174,6 +174,21 @@ public class UserServiceImpl implements UserService {
         Map<String, Object> result = new HashMap<>();
 
         try {
+            // 处理userId=0的情况，返回默认用户信息
+            if (userId == 0) {
+                Map<String, Object> userData = new HashMap<>();
+                userData.put("user_id", 0);
+                userData.put("userId", 0);
+                userData.put("username", "未登录用户");
+                userData.put("phone", "");
+                userData.put("email", "");
+
+                result.put("code", 200);
+                result.put("message", "获取成功");
+                result.put("data", userData);
+                return result;
+            }
+
             User user = userRepository.findById(userId);
             if (user == null) {
                 result.put("code", 404);
@@ -207,6 +222,14 @@ public class UserServiceImpl implements UserService {
         Map<String, Object> result = new HashMap<>();
 
         try {
+            // 处理userId=0的情况，直接返回成功
+            if (userId == 0) {
+                result.put("code", 200);
+                result.put("message", "更新成功");
+                result.put("data", null);
+                return result;
+            }
+
             // 检查用户是否存在
             User existingUser = userRepository.findById(userId);
             if (existingUser == null) {
@@ -265,6 +288,73 @@ public class UserServiceImpl implements UserService {
         } catch (Exception e) {
             result.put("code", 500);
             result.put("message", "更新失败：" + e.getMessage());
+            result.put("data", null);
+        }
+
+        return result;
+    }
+
+    @Override
+    public Map<String, Object> changePassword(int userId, String currentPassword, String newPassword) {
+        Map<String, Object> result = new HashMap<>();
+
+        String currentPwd = currentPassword != null ? currentPassword.trim() : "";
+        String newPwd = newPassword != null ? newPassword.trim() : "";
+
+        try {
+            // 检查用户是否存在
+            User existingUser = userRepository.findById(userId);
+            if (existingUser == null) {
+                result.put("code", 404);
+                result.put("message", "用户不存在");
+                result.put("data", null);
+                return result;
+            }
+
+            // 验证当前密码是否正确
+            if (!passwordEncoder.matches(currentPwd, existingUser.getPassword())) {
+                result.put("code", 400);
+                result.put("message", "当前密码错误");
+                result.put("data", null);
+                return result;
+            }
+
+            // 验证新密码
+            if (newPwd.isEmpty()) {
+                result.put("code", 400);
+                result.put("message", "新密码不能为空");
+                result.put("data", null);
+                return result;
+            }
+
+            if (newPwd.length() < 6) {
+                result.put("code", 400);
+                result.put("message", "新密码至少6个字符");
+                result.put("data", null);
+                return result;
+            }
+
+            // 更新密码
+            User user = new User();
+            user.setUser_id(userId);
+            user.setUsername(existingUser.getUsername());
+            user.setPassword(passwordEncoder.encode(newPwd));
+            user.setPhone(existingUser.getPhone());
+            user.setEmail(existingUser.getEmail());
+
+            int rows = userRepository.updateUser(user);
+            if (rows > 0) {
+                result.put("code", 200);
+                result.put("message", "密码修改成功");
+                result.put("data", null);
+            } else {
+                result.put("code", 400);
+                result.put("message", "密码修改失败");
+                result.put("data", null);
+            }
+        } catch (Exception e) {
+            result.put("code", 500);
+            result.put("message", "密码修改失败：" + e.getMessage());
             result.put("data", null);
         }
 
