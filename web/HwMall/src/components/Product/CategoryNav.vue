@@ -15,18 +15,38 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
+import { getCategories } from '@/api/product.js'
+
 const emit = defineEmits(['category-click'])
 
-const categories = [
-  { id: 'digital', name: '数码电子', icon: '📱' },
-  { id: 'home', name: '家居生活', icon: '🏠' },
-  { id: 'clothes', name: '服饰鞋包', icon: '👔' },
-  { id: 'food', name: '美食零食', icon: '🍔' },
-  { id: 'sports', name: '运动户外', icon: '⚽' },
-  { id: 'beauty', name: '美妆护肤', icon: '💄' },
-  { id: 'books', name: '图书文具', icon: '📚' },
-  { id: 'toys', name: '玩具乐器', icon: '🎮' }
-]
+const categories = ref([
+  { id: 0, name: '全部', icon: '📦' }
+])
+
+const loadCategories = async () => {
+  try {
+    const res = await getCategories()
+    // 支持后端返回 { code, data } 或直接返回数组
+    const list = res && res.data ? res.data : res
+    if (Array.isArray(list)) {
+      // map backend fields to frontend
+      const mapped = list.map(c => ({
+        id: c.category_id || c.id,
+        name: c.category_name || c.name,
+        icon: c.icon || ''
+      }))
+      categories.value = [{ id: 0, name: '全部', icon: '📦' }, ...mapped]
+    }
+  } catch (e) {
+    // 如果获取失败，则保留默认硬编码分类
+    console.error('加载分类失败', e)
+  }
+}
+
+onMounted(() => {
+  loadCategories()
+})
 
 const handleCategoryClick = (category) => {
   emit('category-click', category)

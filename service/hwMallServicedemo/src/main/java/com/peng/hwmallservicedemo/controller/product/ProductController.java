@@ -35,6 +35,25 @@ public class ProductController {
     }
 
     /**
+     * 查询所有商品分类
+     */
+    @GetMapping("/categories")
+    public Map<String, Object> getAllCategories() {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            List<Map<String, Object>> categories = productService.getAllCategories();
+            result.put("code", 200);
+            result.put("message", "success");
+            result.put("data", categories);
+        } catch (Exception e) {
+            result.put("code", 500);
+            result.put("message", e.getMessage());
+            result.put("data", null);
+        }
+        return result;
+    }
+
+    /**
      * 查询所有商品（不分页）
      */
     @GetMapping("/list")

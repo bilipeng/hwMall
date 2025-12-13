@@ -237,16 +237,11 @@ const filteredProducts = computed(() => {
   }
 
   // 分类筛选
-  if (filterOptions.value.category) {
-    const categoryMap = {
-      digital: '数码电子',
-      home: '家居生活',
-      clothes: '服饰鞋包',
-      food: '美食零食'
-    }
-    const categoryName = categoryMap[filterOptions.value.category]
-    if (categoryName) {
-      result = result.filter(product => product.category === categoryName)
+  if (filterOptions.value.category || filterOptions.value.category === 0) {
+    const cid = Number(filterOptions.value.category)
+    // 0 表示全部，不过滤
+    if (cid !== 0) {
+      result = result.filter(product => Number(product.categoryId) === cid)
     }
   }
 
@@ -307,10 +302,28 @@ const formattedSearchProducts = computed(() => {
 // 添加到购物车
 const handleAddToCart = async (product) => {
   try {
-    const userId = localStorage.getItem('userId') || 1
+    const rawUserId = localStorage.getItem('userId') || '1'
+    const userId = Number(rawUserId)
     const { addToCart } = await import('@/api/cart.js')
-    await addToCart(userId, product.id, 1)
-    alert(`已将 ${product.name} 添加到购物车`)
+    const response = await addToCart(userId, product.id, 1)
+
+    if (response && response.code === 200) {
+      // 如果后端返回 cartCount，保存以便页面显示
+      const cartCount = response.data?.cartCount
+      if (cartCount != null) {
+        localStorage.setItem('cartCount', String(cartCount))
+      }
+      // 通知同页其他组件（例如购物车页面）刷新
+      try {
+        window.dispatchEvent(new Event('cart-updated'))
+      } catch (e) {}
+
+      // 触发刷新并提示（不做跳转）
+      alert(`已将 ${product.name} 添加到购物车`)
+    } else {
+      console.error('添加到购物车失败:', response)
+      alert('添加到购物车失败: ' + (response?.message || '未知错误'))
+    }
   } catch (error) {
     console.error('添加到购物车失败:', error)
     alert('添加到购物车失败，请稍后重试')

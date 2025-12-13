@@ -8,7 +8,8 @@
       />
     </div>
     <div class="cart-item-image">
-      <div class="image-placeholder">商品图片</div>
+      <img v-if="item.productImage" :src="item.productImage" alt="商品图片" class="product-image" />
+      <div v-else class="image-placeholder">商品图片</div>
     </div>
     <div class="cart-item-info">
       <div class="cart-item-name">{{ item.productName }}</div>
@@ -141,6 +142,13 @@ const handleSelectChange = (event) => {
   justify-content: center;
   font-size: 12px;
   color: #6b7280;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
 }
 
 .cart-item-info {

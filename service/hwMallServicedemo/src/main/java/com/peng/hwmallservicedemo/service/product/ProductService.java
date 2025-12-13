@@ -40,6 +40,12 @@ public interface ProductService {
      * @return 包含商品列表和分页信息的Map
      */
     Map<String, Object> getProductsByCategoryWithPage(int categoryId, int page, int pageSize);
+
+    /**
+     * 查询所有商品分类
+     * @return 分类列表
+     */
+    List<Map<String, Object>> getAllCategories();
 }
 
 

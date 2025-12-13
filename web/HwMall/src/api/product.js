@@ -58,4 +58,11 @@ export function getProductsByCategoryWithPage(categoryId, page = 1, pageSize = 1
   })
 }
 
+/**
+ * 获取全部商品分类
+ */
+export function getCategories() {
+  return request.get('/api/product/categories')
+}
+
 

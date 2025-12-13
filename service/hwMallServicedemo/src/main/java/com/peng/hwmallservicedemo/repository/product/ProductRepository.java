@@ -68,6 +68,11 @@ public interface ProductRepository {
      * 根据分类统计商品数量
      */
     int countByCategory(@Param("category_id") int categoryId);
+
+    /**
+     * 查询所有商品分类
+     */
+    List<Map<String, Object>> getAllCategories();
 }
 
 

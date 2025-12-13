@@ -116,6 +116,11 @@ public class ProductServiceImpl implements ProductService {
 
         return result;
     }
+
+    @Override
+    public List<Map<String, Object>> getAllCategories() {
+        return productRepository.getAllCategories();
+    }
 }
 
 

@@ -5,7 +5,7 @@
       <nav class="nav-links">
         <router-link to="/home" class="nav-link">首页</router-link>
         <a href="#products" class="nav-link" @click="scrollToProducts">商品展示</a>
-        <router-link to="/cart" class="nav-link">购物车</router-link>
+        <router-link to="/cart" class="nav-link">购物车 <span v-if="cartCount > 0">({{ cartCount }})</span></router-link>
         <router-link to="/order" class="nav-link">订单管理</router-link>
         <router-link to="/profile" class="nav-link">个人中心</router-link>
         <!-- 未登录时显示登录注册按钮 -->
@@ -30,6 +30,7 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const isLoggedIn = ref(false)
 const userInfo = reactive({})
+const cartCount = ref(0)
 
 // 检查用户登录状态
 const checkLoginStatus = () => {
@@ -87,7 +88,30 @@ onMounted(() => {
     if (e.key === 'user' || e.key === 'userId' || e.key === 'token') {
       checkLoginStatus()
     }
+    if (e.key === 'cartCount') {
+      try {
+        cartCount.value = Number(localStorage.getItem('cartCount') || 0)
+      } catch (err) {
+        cartCount.value = 0
+      }
+    }
   })
+    
+    // 同一窗口内 dispatchEvent 通知
+    window.addEventListener('cart-updated', () => {
+      try {
+        cartCount.value = Number(localStorage.getItem('cartCount') || 0)
+      } catch (err) {
+        cartCount.value = 0
+      }
+    })
+  
+  // 初始读取购物车数量
+  try {
+    cartCount.value = Number(localStorage.getItem('cartCount') || 0)
+  } catch (err) {
+    cartCount.value = 0
+  }
 })
 </script>
 

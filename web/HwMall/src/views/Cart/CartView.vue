@@ -1,5 +1,6 @@
 <template>
   <div class="cart-view">
+    <Navbar />
     <div class="cart-view-header">
       <h1 class="page-title">购物车</h1>
     </div>
@@ -23,7 +24,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
+import Navbar from '@/components/Layout/Navbar.vue'
+import Footer from '@/components/Layout/Footer.vue'
 import Cart from '@/components/Cart/Cart.vue'
 import {
   getCartList,
@@ -57,11 +60,44 @@ const loadCartList = async () => {
   try {
     const userId = getUserId()
     const response = await getCartList(userId)
-    if (response.code === 200) {
-      cartItems.value = response.data.cartItems || []
+    if (response) {
+      // 兼容多种后端返回格式：
+      // 1) { code:200, data: { cartItems: [...] } }
+      // 2) { code:200, data: [...] }
+      // 3) [...]（拦截器直接返回data数组）
+      let items = []
+      if (response.code === 200) {
+        if (Array.isArray(response.data)) {
+          items = response.data
+        } else if (response.data && Array.isArray(response.data.cartItems)) {
+          items = response.data.cartItems
+        } else if (response.data && Array.isArray(response.data.items)) {
+          items = response.data.items
+        }
+      } else if (Array.isArray(response)) {
+        items = response
+      }
+
+      // 规范项的字段并保证数值类型
+      cartItems.value = (items || []).map(i => ({
+        cartId: i.cartId ?? i.cart_id ?? i.id ?? 0,
+        productId: i.productId ?? i.product_id ?? 0,
+        productName: i.productName ?? i.name ?? i.product_name ?? '',
+        price: Number(i.price ?? i.unitPrice ?? 0),
+        quantity: Number(i.quantity ?? i.qty ?? 0),
+        stock: Number(i.stock ?? 0),
+        subtotal: Number(i.subtotal ?? (i.price ? (Number(i.price) * Number(i.quantity || 0)) : 0)),
+        productImage: i.productImage ?? i.image ?? ''
+      }))
+
+      // 如果接口返回 code !== 200 且没有数组，则报错提示
+      if ((response.code && response.code !== 200) && cartItems.value.length === 0) {
+        console.error('获取购物车列表失败:', response.message)
+        alert('获取购物车列表失败: ' + (response.message || '未知错误'))
+      }
     } else {
-      console.error('获取购物车列表失败:', response.message)
-      alert('获取购物车列表失败: ' + response.message)
+      console.error('获取购物车列表失败: 空响应')
+      alert('获取购物车列表失败: 空响应')
     }
   } catch (error) {
     console.error('获取购物车列表错误:', error)
@@ -142,7 +178,14 @@ const goShopping = () => {
 
 onMounted(() => {
   loadCartList()
+  // 监听全局 cart-updated 事件以刷新列表（在同一窗口内 storage 事件不会触发）
+  window.addEventListener('cart-updated', loadCartList)
 })
+
+onBeforeUnmount(() => {
+  window.removeEventListener('cart-updated', loadCartList)
+})
+
 </script>
 
 <style scoped>
