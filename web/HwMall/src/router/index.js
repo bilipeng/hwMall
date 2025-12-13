@@ -16,6 +16,11 @@ const routes = [
     component: () => import('@/views/Cart/CartView.vue')
   },
   {
+    path: '/products',
+    name: 'ProductList',
+    component: () => import('@/views/Product/ProductListView.vue')
+  },
+  {
     path: '/product/:id',
     name: 'ProductDetail',
     component: () => import('@/views/Product/ProductDetailView.vue')
@@ -34,6 +39,21 @@ const routes = [
     path: '/profile',
     name: 'Profile',
     component: () => import('@/views/User/ProfileView.vue')
+  },
+  {
+    path: '/order',
+    name: 'OrderList',
+    component: () => import('@/views/Order/OrderListView.vue')
+  },
+  {
+    path: '/order/:id',
+    name: 'OrderDetail',
+    component: () => import('@/views/Order/OrderDetailView.vue')
+  },
+  {
+    path: '/order/confirm',
+    name: 'OrderConfirm',
+    component: () => import('@/views/Order/OrderConfirmView.vue')
   },
   // 可以在这里添加更多路由
   {

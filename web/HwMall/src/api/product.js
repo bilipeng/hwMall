@@ -61,8 +61,20 @@ export function getProductsByCategoryWithPage(categoryId, page = 1, pageSize = 1
 /**
  * 获取全部商品分类
  */
-export function getCategories() {
-  return request.get('/api/product/categories')
+export async function getCategories() {
+  try {
+    const response = await request.get('/api/product/categories')
+    // 响应拦截器已经返回了 response.data
+    // 后端返回格式: { code: 200, message: "success", data: [...] }
+    if (response && response.code === 200 && response.data) {
+      return response
+    }
+    // 如果格式不对，尝试直接返回
+    return response
+  } catch (error) {
+    console.error('获取分类失败:', error)
+    throw error
+  }
 }
 
 

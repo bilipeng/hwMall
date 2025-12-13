@@ -62,6 +62,7 @@
             c.cart_id AS cartId,
             c.product_id AS productId,
             p.name AS productName,
+            p.image_url AS productImage,
             p.price AS price,
             c.quantity AS quantity,
             p.stock AS stock,

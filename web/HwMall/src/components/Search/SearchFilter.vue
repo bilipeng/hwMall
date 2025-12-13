@@ -4,8 +4,7 @@
       <SearchBox @search="handleSearch" />
     </div>
     <div class="filter-group">
-      <select v-model="selectedCategory" class="filter-select" @change="handleFilter">
-        <option value="">全部分类</option>
+      <select v-model.number="selectedCategory" class="filter-select" @change="handleFilter">
         <option v-for="cat in categories" :key="cat.value" :value="cat.value">
           {{ cat.label }}
         </option>
@@ -36,21 +35,72 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import SearchBox from './SearchBox.vue'
+import { getCategories } from '@/api/product.js'
 
 const emit = defineEmits(['search', 'filter'])
 
-const categories = [
-  { value: 'digital', label: '数码电子' },
-  { value: 'home', label: '家居生活' },
-  { value: 'clothes', label: '服饰鞋包' },
-  { value: 'food', label: '美食零食' }
-]
-
-const selectedCategory = ref('')
+// 从后端获取分类数据
+const categories = ref([
+  { value: 0, label: '全部分类' }
+])
+const selectedCategory = ref(0)
 const minPrice = ref(null)
 const maxPrice = ref(null)
+
+// 默认图标映射
+const defaultIcons = {
+  1: '🏠',
+  2: '🏃',
+  3: '💻',
+  4: '📱',
+  5: '📚'
+}
+
+// 加载分类数据
+const loadCategories = async () => {
+  try {
+    const res = await getCategories()
+    
+    if (res && res.code === 200 && Array.isArray(res.data)) {
+      const mapped = res.data.map(c => ({
+        value: Number(c.category_id || c.id),
+        label: c.category_name || c.name || ''
+      }))
+      categories.value = [
+        { value: 0, label: '全部分类' },
+        ...mapped
+      ]
+    } else {
+      console.warn('分类数据格式不正确，使用默认分类')
+      // 使用默认分类
+      categories.value = [
+        { value: 0, label: '全部分类' },
+        { value: 1, label: '智能家居' },
+        { value: 2, label: '户外运动' },
+        { value: 3, label: '电脑主板' },
+        { value: 4, label: '手机' },
+        { value: 5, label: '图书影像' }
+      ]
+    }
+  } catch (e) {
+    console.error('加载分类失败:', e)
+    // 使用默认分类
+    categories.value = [
+      { value: 0, label: '全部分类' },
+      { value: 1, label: '智能家居' },
+      { value: 2, label: '户外运动' },
+      { value: 3, label: '电脑主板' },
+      { value: 4, label: '手机' },
+      { value: 5, label: '图书影像' }
+    ]
+  }
+}
+
+onMounted(() => {
+  loadCategories()
+})
 
 const handleSearch = (keyword) => {
   emit('search', keyword)
@@ -58,14 +108,14 @@ const handleSearch = (keyword) => {
 
 const handleFilter = () => {
   emit('filter', {
-    category: selectedCategory.value,
+    category: Number(selectedCategory.value) || 0,
     minPrice: minPrice.value,
     maxPrice: maxPrice.value
   })
 }
 
 const handleReset = () => {
-  selectedCategory.value = ''
+  selectedCategory.value = 0
   minPrice.value = null
   maxPrice.value = null
   handleFilter()

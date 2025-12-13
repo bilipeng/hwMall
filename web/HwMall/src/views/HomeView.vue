@@ -10,10 +10,16 @@
     </div>
 
     <!-- 轮播图和侧边栏 -->
-    <Banner @slide-click="handleBannerClick" />
+    <Banner 
+      :slides="bannerSlides" 
+      @slide-click="handleBannerClick" 
+    />
 
     <!-- 分类导航 -->
-    <CategoryNav @category-click="handleCategoryClick" />
+    <CategoryNav 
+      :active-category-id="Number(filterOptions.category) || 0" 
+      @category-click="handleCategoryClick" 
+    />
 
     <main class="main">
       <div class="content-inner">
@@ -25,7 +31,10 @@
             more-link="/products?sort=hot"
           />
           <div v-if="loading" class="loading-state">
-            <div class="loading-spinner">加载中...</div>
+            <div class="loading-spinner">
+              <div class="spinner-circle"></div>
+              <p>加载中...</p>
+            </div>
           </div>
           <div v-else-if="error" class="error-state">
             <div class="error-icon">⚠️</div>
@@ -46,13 +55,13 @@
           </div>
         </section>
 
-        <!-- 搜索结果或全部商品 -->
+        <!-- 精选商品 -->
         <section id="products" class="product-section">
           <SectionHeader
             :title="searchKeyword ? '搜索结果' : '精选商品'"
             :subtitle="searchKeyword 
               ? `找到 ${filteredProducts.length} 件相关商品` 
-              : '以下为静态示例数据，后续可由后端接口返回真实商品信息。'"
+              : '精选好物，品质保证'"
             :more-link="searchKeyword ? '' : '/products'"
           />
 
@@ -68,10 +77,10 @@
             @product-click="handleProductClick"
           />
 
-          <!-- 无搜索关键词时，使用 ProductCard 网格展示 -->
-          <div v-else-if="filteredProducts.length > 0" class="product-grid">
+          <!-- 无搜索关键词时，显示精选商品（从不同分类随机选择） -->
+          <div v-else-if="featuredProducts.length > 0" class="product-grid">
             <ProductCard
-              v-for="product in filteredProducts"
+              v-for="product in featuredProducts"
               :key="product.id"
               :product="product"
               @add-to-cart="handleAddToCart"
@@ -91,7 +100,10 @@
             more-link="/products?tag=new"
           />
           <div v-if="loading" class="loading-state">
-            <div class="loading-spinner">加载中...</div>
+            <div class="loading-spinner">
+              <div class="spinner-circle"></div>
+              <p>加载中...</p>
+            </div>
           </div>
           <div v-else-if="newProducts.length > 0" class="product-grid">
             <ProductCard
@@ -123,8 +135,11 @@ import CategoryNav from '@/components/Product/CategoryNav.vue'
 import SectionHeader from '@/components/Product/SectionHeader.vue'
 import ProductCard from '@/components/Product/ProductCard.vue'
 import SearchResult from '@/components/Search/SearchResult.vue'
-import { getAllProducts } from '@/api/product.js'
-import { getAllProductsWithPage } from '@/api/product.js'
+import { 
+  getAllProducts, 
+  getAllProductsWithPage,
+  getProductsByCategoryWithPage
+} from '@/api/product.js'
 
 const router = useRouter()
 
@@ -134,6 +149,8 @@ const products = ref([])
 const loading = ref(false)
 // 错误信息
 const error = ref(null)
+// 数据缓存
+const productsCache = ref(new Map())
 
 // 分类ID到名称的映射（根据你的数据库实际情况调整）
 const categoryMap = {
@@ -149,14 +166,49 @@ const categoryMap = {
  * @returns {Object} 前端需要的商品数据格式
  */
 const transformProduct = (backendProduct) => {
+  // 确保 categoryId 是数字类型
+  const categoryId = backendProduct.category_id != null 
+    ? Number(backendProduct.category_id) 
+    : (backendProduct.categoryId != null ? Number(backendProduct.categoryId) : 0)
+  
+  // 处理图片URL，支持多种可能的字段名
+  // 注意：后端返回的字段名是 image_url（下划线格式）
+  let imageUrl = backendProduct.image_url || 
+                 backendProduct.image || 
+                 backendProduct.imageUrl || 
+                 backendProduct.product_image || 
+                 ''
+  
+  // 去除首尾空格
+  imageUrl = imageUrl ? String(imageUrl).trim() : ''
+  
+  // 如果图片URL是相对路径，可能需要添加baseURL
+  // 如果已经是完整URL（http://或https://开头），则直接使用
+  if (imageUrl && !imageUrl.startsWith('http://') && !imageUrl.startsWith('https://') && !imageUrl.startsWith('/')) {
+    // 如果是相对路径，可能需要添加前缀
+    // 这里可以根据实际情况调整
+  }
+  
+  // 如果图片URL为空，记录警告（包含原始数据用于调试）
+  if (!imageUrl) {
+    console.warn('商品缺少图片URL:', {
+      productId: backendProduct.product_id || backendProduct.id,
+      name: backendProduct.name,
+      allFields: Object.keys(backendProduct),
+      image_url: backendProduct.image_url,
+      image: backendProduct.image,
+      originalData: backendProduct
+    })
+  }
+  
   return {
     id: backendProduct.product_id || backendProduct.id,
     name: backendProduct.name || '',
     description: backendProduct.description || '',
     price: parseFloat(backendProduct.price || 0),
-    category: categoryMap[backendProduct.category_id] || '其他',
-    categoryId: backendProduct.category_id,
-    image: backendProduct.image_url || '',
+    category: categoryMap[categoryId] || '其他',
+    categoryId: categoryId, // 确保是数字类型
+    image: imageUrl,
     stock: backendProduct.stock || 0,
     // 暂时随机设置热门和新品标识（后续可以从后端获取）
     isHot: Math.random() > 0.5,
@@ -166,24 +218,75 @@ const transformProduct = (backendProduct) => {
 
 /**
  * 加载商品数据
+ * @param {number} categoryId - 分类ID，0表示全部
+ * @param {boolean} forceRefresh - 是否强制刷新
  */
-const loadProducts = async () => {
+const loadProducts = async (categoryId = 0, forceRefresh = false) => {
+  // 检查缓存
+  const cacheKey = categoryId === 0 ? 'all_products' : `category_${categoryId}`
+  if (!forceRefresh && productsCache.value.has(cacheKey)) {
+    products.value = productsCache.value.get(cacheKey)
+    return
+  }
+
   loading.value = true
   error.value = null
   try {
-    // 分页查询，默认第1页，每页20条
-    const response = await getAllProductsWithPage(1, 20)
+    let response
+    
+    if (categoryId === 0) {
+      // 加载全部商品（使用分页接口）
+      response = await getAllProductsWithPage(1, 20)
+    } else {
+      // 加载指定分类的商品
+      // 注意：根据后端实现，分页接口返回 { data: { list: [...] } }
+      // 非分页接口返回 { data: [...] }
+      // 这里使用分页接口
+      response = await getProductsByCategoryWithPage(categoryId, 1, 20)
+    }
+    
+    console.log('接口响应:', response)
     
     // 检查响应格式
     if (response.code === 200 && response.data) {
+      console.log('接口返回的原始数据:', response)
+      console.log('response.data类型:', Array.isArray(response.data) ? '数组' : typeof response.data)
+      
       // 分页查询返回的 data 是对象，包含 list 属性
-      // 普通查询返回的 data 是数组
-      const productList = response.data.list || response.data
+      // 非分页查询返回的 data 是数组
+      let productList = null
+      
+      if (Array.isArray(response.data)) {
+        // 直接是数组（非分页接口，如 /api/product/category/{categoryId}）
+        productList = response.data
+        console.log('使用数组格式，商品数量:', productList.length)
+      } else if (response.data && Array.isArray(response.data.list)) {
+        // 分页结果，包含 list 属性（分页接口，如 /api/product/category/{categoryId}/page）
+        productList = response.data.list
+        console.log('使用分页格式，商品数量:', productList.length)
+      } else {
+        console.error('无法解析数据格式:', response.data)
+        throw new Error('返回的数据格式不正确')
+      }
+      
+      if (productList && productList.length > 0) {
+        console.log('原始商品数据（第一个）:', productList[0])
+        console.log('第一个商品的image_url字段:', productList[0]?.image_url)
+        console.log('第一个商品的所有字段:', Object.keys(productList[0] || {}))
+      }
       
       // 确保 productList 是数组
-      if (Array.isArray(productList)) {
+      if (Array.isArray(productList) && productList.length > 0) {
         // 转换数据格式
-        products.value = productList.map(transformProduct)
+        const transformedProducts = productList.map(transformProduct)
+        console.log('转换后的商品数据（第一个）:', transformedProducts[0])
+        console.log('第一个商品的image字段:', transformedProducts[0]?.image)
+        products.value = transformedProducts
+        // 缓存数据（5分钟过期）
+        productsCache.value.set(cacheKey, transformedProducts)
+        setTimeout(() => {
+          productsCache.value.delete(cacheKey)
+        }, 5 * 60 * 1000)
       } else {
         throw new Error('返回的数据格式不正确')
       }
@@ -203,7 +306,7 @@ const loadProducts = async () => {
 // 筛选条件
 const searchKeyword = ref('')
 const filterOptions = ref({
-  category: '',
+  category: 0, // 默认0表示全部，使用数字类型
   minPrice: null,
   maxPrice: null
 })
@@ -212,19 +315,153 @@ const filterOptions = ref({
 const currentPage = ref(1)
 const pageSize = ref(10)
 
-// 热门商品
-const hotProducts = computed(() => {
-  return products.value.filter(p => p.isHot).slice(0, 4)
+// 随机选择商品函数
+const getRandomProducts = (productList, count) => {
+  if (!productList || productList.length === 0) return []
+  const shuffled = [...productList].sort(() => Math.random() - 0.5)
+  return shuffled.slice(0, Math.min(count, shuffled.length))
+}
+
+// 从不同分类中随机选择商品
+const getRandomProductsFromDifferentCategories = (productList, count) => {
+  if (!productList || productList.length === 0) return []
+  
+  // 按分类分组
+  const productsByCategory = {}
+  productList.forEach(product => {
+    const categoryId = product.categoryId || 0
+    if (!productsByCategory[categoryId]) {
+      productsByCategory[categoryId] = []
+    }
+    productsByCategory[categoryId].push(product)
+  })
+  
+  // 获取所有分类ID并随机排序
+  const categoryIds = Object.keys(productsByCategory).sort(() => Math.random() - 0.5)
+  
+  const selectedProducts = []
+  let categoryIndex = 0
+  
+  // 从不同分类中轮流选择商品
+  while (selectedProducts.length < count && categoryIds.length > 0) {
+    const categoryId = categoryIds[categoryIndex % categoryIds.length]
+    const categoryProducts = productsByCategory[categoryId]
+    
+    if (categoryProducts && categoryProducts.length > 0) {
+      // 从该分类中随机选择一个商品
+      const randomIndex = Math.floor(Math.random() * categoryProducts.length)
+      const selectedProduct = categoryProducts[randomIndex]
+      
+      // 检查是否已选择（避免重复）
+      if (!selectedProducts.find(p => p.id === selectedProduct.id)) {
+        selectedProducts.push(selectedProduct)
+        // 从分类列表中移除已选择的商品
+        categoryProducts.splice(randomIndex, 1)
+        // 如果该分类没有商品了，移除该分类
+        if (categoryProducts.length === 0) {
+          const index = categoryIds.indexOf(categoryId)
+          if (index > -1) {
+            categoryIds.splice(index, 1)
+          }
+        }
+      }
+    }
+    
+    categoryIndex++
+    
+    // 防止无限循环
+    if (categoryIndex > 100) break
+  }
+  
+  // 如果还需要更多商品，从剩余商品中随机选择
+  if (selectedProducts.length < count) {
+    const remainingProducts = productList.filter(
+      p => !selectedProducts.find(sp => sp.id === p.id)
+    )
+    const additionalProducts = getRandomProducts(remainingProducts, count - selectedProducts.length)
+    selectedProducts.push(...additionalProducts)
+  }
+  
+  return selectedProducts
+}
+
+// 轮播图商品（从不同分类随机选择3个商品）
+const bannerSlides = computed(() => {
+  if (products.value.length === 0) {
+    // 如果没有商品数据，使用默认轮播图
+    return [
+      {
+        title: '新品上市',
+        description: '精选好物，限时优惠',
+        color1: '#2563eb',
+        color2: '#4f46e5',
+        link: '/products?tag=new'
+      },
+      {
+        title: '限时抢购',
+        description: '每日特价，不容错过',
+        color1: '#ef4444',
+        color2: '#dc2626',
+        link: '/products?tag=flash'
+      },
+      {
+        title: '品质生活',
+        description: '精选商品，品质保证',
+        color1: '#10b981',
+        color2: '#059669',
+        link: '/products?tag=quality'
+      }
+    ]
+  }
+  
+  // 从不同分类中随机选择3个商品作为轮播图
+  const randomProducts = getRandomProductsFromDifferentCategories(products.value, 3)
+  const colors = [
+    { color1: '#2563eb', color2: '#4f46e5' },
+    { color1: '#ef4444', color2: '#dc2626' },
+    { color1: '#10b981', color2: '#059669' }
+  ]
+  
+  return randomProducts.map((product, index) => ({
+    title: product.name.length > 20 ? product.name.substring(0, 20) + '...' : product.name,
+    description: product.description || '精选好物，品质保证',
+    image: product.image,
+    link: `/product/${product.id}`,
+    productId: product.id,
+    ...colors[index % colors.length]
+  }))
 })
 
-// 新品
+// 热门商品（从不同分类随机选择4个）
+const hotProducts = computed(() => {
+  if (products.value.length === 0) return []
+  return getRandomProductsFromDifferentCategories(products.value, 4)
+})
+
+// 精选商品（从不同分类随机选择4个，排除热门推荐中的商品）
+const featuredProducts = computed(() => {
+  if (products.value.length === 0) return []
+  // 排除已经在热门推荐中的商品
+  const hotProductIds = new Set(hotProducts.value.map(p => p.id))
+  const availableProducts = products.value.filter(p => !hotProductIds.has(p.id))
+  return getRandomProductsFromDifferentCategories(availableProducts, 4)
+})
+
+// 新品（从不同分类随机选择4个，排除热门推荐和精选商品中的商品）
 const newProducts = computed(() => {
-  return products.value.filter(p => p.isNew).slice(0, 4)
+  if (products.value.length === 0) return []
+  // 排除已经在热门推荐和精选商品中的商品
+  const hotProductIds = new Set(hotProducts.value.map(p => p.id))
+  const featuredProductIds = new Set(featuredProducts.value.map(p => p.id))
+  const excludedIds = new Set([...hotProductIds, ...featuredProductIds])
+  const availableProducts = products.value.filter(p => !excludedIds.has(p.id))
+  return getRandomProductsFromDifferentCategories(availableProducts, 4)
 })
 
 // 过滤后的商品列表
 const filteredProducts = computed(() => {
   let result = products.value
+  console.log('开始筛选，原始商品数:', result.length)
 
   // 关键词搜索
   if (searchKeyword.value) {
@@ -234,16 +471,12 @@ const filteredProducts = computed(() => {
         product.name.toLowerCase().includes(keyword) ||
         product.description.toLowerCase().includes(keyword)
     )
+    console.log('搜索后商品数:', result.length)
   }
 
-  // 分类筛选
-  if (filterOptions.value.category || filterOptions.value.category === 0) {
-    const cid = Number(filterOptions.value.category)
-    // 0 表示全部，不过滤
-    if (cid !== 0) {
-      result = result.filter(product => Number(product.categoryId) === cid)
-    }
-  }
+  // 注意：分类筛选现在由后端接口处理，这里不再需要前端筛选
+  // 因为点击分类时会调用 loadProducts(categoryId) 重新加载数据
+  // 这里保留逻辑是为了兼容搜索和价格筛选
 
   // 价格区间筛选
   if (filterOptions.value.minPrice !== null && filterOptions.value.minPrice > 0) {
@@ -253,6 +486,7 @@ const filteredProducts = computed(() => {
     result = result.filter(product => product.price <= filterOptions.value.maxPrice)
   }
 
+  console.log('最终筛选结果数量:', result.length)
   return result
 })
 
@@ -263,26 +497,68 @@ const handleSearch = (keyword) => {
 }
 
 // 处理筛选
-const handleFilter = (options) => {
-  filterOptions.value = { ...options }
+const handleFilter = async (options) => {
+  // 确保 category 是数字类型
+  let category = options.category
+  if (typeof category === 'string') {
+    // 如果是字符串，尝试映射到数字ID
+    const categoryMap = {
+      'digital': 1,
+      'home': 2,
+      'clothes': 3,
+      'food': 4,
+      '': 0,
+      'all': 0
+    }
+    category = categoryMap[category] !== undefined ? categoryMap[category] : 0
+  }
+  
+  const categoryId = Number(category) || 0
+  
+  filterOptions.value = {
+    ...options,
+    category: categoryId
+  }
+  
+  // 如果分类改变了，重新加载商品
+  await loadProducts(categoryId, true)
+  
+  console.log('handleFilter 更新筛选条件:', filterOptions.value)
 }
 
 // 处理轮播图点击
 const handleBannerClick = (slide) => {
   if (slide.link) {
     router.push(slide.link)
+  } else if (slide.productId) {
+    router.push(`/product/${slide.productId}`)
   }
 }
 
 // 处理分类点击
-const handleCategoryClick = (category) => {
-  filterOptions.value.category = category.id
-  handleFilter(filterOptions.value)
-  // 滚动到商品区域
+const handleCategoryClick = async (category) => {
+  console.log('处理分类点击:', category)
+  // 确保 category.id 是数字类型
+  const categoryId = Number(category.id) || 0
+  console.log('设置分类ID:', categoryId)
+  
+  // 更新筛选条件
+  filterOptions.value = {
+    ...filterOptions.value,
+    category: categoryId
+  }
+  
+  // 调用后端接口加载该分类的商品
+  await loadProducts(categoryId, true)
+  
+  // 平滑滚动到商品区域
   setTimeout(() => {
     const section = document.getElementById('products')
     if (section) {
-      section.scrollIntoView({ behavior: 'smooth' })
+      section.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      })
     }
   }, 100)
 }
@@ -341,8 +617,8 @@ const handleProductClick = (productId) => {
 }
 
 onMounted(() => {
-  // 加载商品数据
-  loadProducts()
+  // 加载商品数据（默认加载全部商品）
+  loadProducts(0)
 })
 </script>
 
@@ -411,8 +687,27 @@ onMounted(() => {
 }
 
 .loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
   font-size: 16px;
   color: #6b7280;
+}
+
+.loading-spinner .spinner-circle {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e5e7eb;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .error-state {

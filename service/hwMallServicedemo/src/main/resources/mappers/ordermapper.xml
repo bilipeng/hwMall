@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.peng.hwmallservicedemo.repository.order.OrderRepository">
+
+    <!-- 结果映射：与数据库表 `order` 字段匹配 -->
+    <resultMap id="OrderResultMap" type="com.peng.hwmallservicedemo.model.order.Order">
+        <id property="orderId" column="order_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="orderDate" column="order_date"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="status" column="status"/>
+        <result property="address" column="address"/>
+    </resultMap>
+
+    <!-- 插入订单 -->
+    <insert id="insert" parameterType="com.peng.hwmallservicedemo.model.order.Order" useGeneratedKeys="true" keyProperty="orderId">
+        INSERT INTO `order` (user_id, order_date, total_amount, status, address)
+        VALUES (#{userId}, #{orderDate}, #{totalAmount}, #{status}, #{address})
+    </insert>
+
+    <!-- 根据ID查询订单 -->
+    <select id="findById" parameterType="long" resultMap="OrderResultMap">
+        SELECT * FROM `order` WHERE order_id = #{id}
+    </select>
+
+    <!-- 根据用户ID查询订单列表 -->
+    <select id="findByUserId" parameterType="long" resultMap="OrderResultMap">
+        SELECT * FROM `order` WHERE user_id = #{userId} ORDER BY order_date DESC
+    </select>
+
+    <!-- 更新订单状态 -->
+    <update id="updateStatus" parameterType="com.peng.hwmallservicedemo.model.order.Order">
+        UPDATE `order` SET status = #{status} WHERE order_id = #{orderId}
+    </update>
+
+</mapper>
+

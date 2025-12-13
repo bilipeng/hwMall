@@ -11,7 +11,7 @@
  Target Server Version : 80042
  File Encoding         : 65001
 
- Date: 10/12/2025 18:12:48
+ Date: 13/12/2025 19:24:52
 */
 
 SET NAMES utf8mb4;
@@ -29,7 +29,7 @@ CREATE TABLE `address`  (
   `user_id` int NOT NULL COMMENT '用户',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '收货地址' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '收货地址' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of address
@@ -51,12 +51,20 @@ CREATE TABLE `cart`  (
   INDEX `product_id`(`product_id`) USING BTREE,
   CONSTRAINT `cart_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `cart_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `product` (`product_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of cart
 -- ----------------------------
 INSERT INTO `cart` VALUES (1, 1, 269, 1);
+INSERT INTO `cart` VALUES (2, 7, 271, 1);
+INSERT INTO `cart` VALUES (3, 7, 263, 1);
+INSERT INTO `cart` VALUES (4, 7, 265, 1);
+INSERT INTO `cart` VALUES (5, 7, 267, 1);
+INSERT INTO `cart` VALUES (6, 7, 270, 1);
+INSERT INTO `cart` VALUES (7, 7, 266, 1);
+INSERT INTO `cart` VALUES (8, 7, 269, 1);
+INSERT INTO `cart` VALUES (9, 7, 252, 1);
 
 -- ----------------------------
 -- Table structure for order
@@ -77,6 +85,26 @@ CREATE TABLE `order`  (
 -- ----------------------------
 -- Records of order
 -- ----------------------------
+INSERT INTO `order` VALUES (1, 1, '2024-12-15 14:30:45', 3430.20, '待支付', '北京市朝阳区某某街道123号，收货人：张三，电话：13800138000');
+INSERT INTO `order` VALUES (2, 1, '2024-12-15 15:01:23', 259.00, '已支付', '上海市浦东新区XX路456号，收货人：李四，电话：13900139000');
+INSERT INTO `order` VALUES (3, 7, '2024-12-15 16:02:34', 2689.40, '待支付', '广州市天河区XX大道789号，收货人：王五，电话：13700137000');
+INSERT INTO `order` VALUES (4, 7, '2024-12-15 17:03:45', 117.30, '已发货', '深圳市南山区XX街101号，收货人：赵六，电话：13600136000');
+INSERT INTO `order` VALUES (5, 1, '2024-12-15 18:04:56', 299.00, '已完成', '杭州市西湖区XX路202号，收货人：钱七，电话：13500135000');
+INSERT INTO `order` VALUES (6, 7, '2024-12-15 19:05:00', 43.20, '待支付', '成都市锦江区XX街303号，收货人：孙八，电话：13400134000');
+INSERT INTO `order` VALUES (7, 1, '2024-12-15 20:06:00', 105.00, '已支付', '武汉市江汉区XX大道404号，收货人：周九，电话：13300133000');
+INSERT INTO `order` VALUES (8, 7, '2024-12-15 21:07:00', 148.00, '待支付', '西安市雁塔区XX路505号，收货人：吴十，电话：13200132000');
+INSERT INTO `order` VALUES (9, 1, '2024-12-15 22:08:00', 168.00, '已发货', '南京市鼓楼区XX街606号，收货人：郑十一，电话：13100131000');
+INSERT INTO `order` VALUES (10, 7, '2024-12-15 23:09:00', 208.00, '已完成', '重庆市渝中区XX路707号，收货人：王十二，电话：13000130000');
+INSERT INTO `order` VALUES (11, 1, '2024-12-15 14:30:45', 3430.20, '待支付', '北京市朝阳区某某街道123号，收货人：张三，电话：13800138000');
+INSERT INTO `order` VALUES (12, 1, '2024-12-15 15:01:23', 259.00, '已支付', '上海市浦东新区XX路456号，收货人：李四，电话：13900139000');
+INSERT INTO `order` VALUES (13, 7, '2024-12-15 16:02:34', 2689.40, '待支付', '广州市天河区XX大道789号，收货人：王五，电话：13700137000');
+INSERT INTO `order` VALUES (14, 7, '2024-12-15 17:03:45', 117.30, '已发货', '深圳市南山区XX街101号，收货人：赵六，电话：13600136000');
+INSERT INTO `order` VALUES (15, 1, '2024-12-15 18:04:56', 299.00, '已完成', '杭州市西湖区XX路202号，收货人：钱七，电话：13500135000');
+INSERT INTO `order` VALUES (16, 7, '2024-12-15 19:05:00', 43.20, '待支付', '成都市锦江区XX街303号，收货人：孙八，电话：13400134000');
+INSERT INTO `order` VALUES (17, 1, '2024-12-15 20:06:00', 105.00, '已支付', '武汉市江汉区XX大道404号，收货人：周九，电话：13300133000');
+INSERT INTO `order` VALUES (18, 7, '2024-12-15 21:07:00', 148.00, '待支付', '西安市雁塔区XX路505号，收货人：吴十，电话：13200132000');
+INSERT INTO `order` VALUES (19, 1, '2024-12-15 22:08:00', 168.00, '已发货', '南京市鼓楼区XX街606号，收货人：郑十一，电话：13100131000');
+INSERT INTO `order` VALUES (20, 7, '2024-12-15 23:09:00', 208.00, '已完成', '重庆市渝中区XX路707号，收货人：王十二，电话：13000130000');
 
 -- ----------------------------
 -- Table structure for order_product
@@ -98,6 +126,28 @@ CREATE TABLE `order_product`  (
 -- ----------------------------
 -- Records of order_product
 -- ----------------------------
+INSERT INTO `order_product` VALUES (1, 1, 1, 1, 3171.20);
+INSERT INTO `order_product` VALUES (2, 1, 2, 1, 259.00);
+INSERT INTO `order_product` VALUES (3, 2, 2, 1, 259.00);
+INSERT INTO `order_product` VALUES (4, 3, 3, 1, 2689.40);
+INSERT INTO `order_product` VALUES (5, 4, 4, 1, 117.30);
+INSERT INTO `order_product` VALUES (6, 5, 5, 1, 299.00);
+INSERT INTO `order_product` VALUES (7, 6, 6, 1, 43.20);
+INSERT INTO `order_product` VALUES (8, 7, 7, 1, 105.00);
+INSERT INTO `order_product` VALUES (9, 8, 8, 1, 148.00);
+INSERT INTO `order_product` VALUES (10, 9, 9, 1, 168.00);
+INSERT INTO `order_product` VALUES (11, 10, 10, 1, 208.00);
+INSERT INTO `order_product` VALUES (12, 1, 1, 1, 3171.20);
+INSERT INTO `order_product` VALUES (13, 1, 2, 1, 259.00);
+INSERT INTO `order_product` VALUES (14, 2, 2, 1, 259.00);
+INSERT INTO `order_product` VALUES (15, 3, 3, 1, 2689.40);
+INSERT INTO `order_product` VALUES (16, 4, 4, 1, 117.30);
+INSERT INTO `order_product` VALUES (17, 5, 5, 1, 299.00);
+INSERT INTO `order_product` VALUES (18, 6, 6, 1, 43.20);
+INSERT INTO `order_product` VALUES (19, 7, 7, 1, 105.00);
+INSERT INTO `order_product` VALUES (20, 8, 8, 1, 148.00);
+INSERT INTO `order_product` VALUES (21, 9, 9, 1, 168.00);
+INSERT INTO `order_product` VALUES (22, 10, 10, 1, 208.00);
 
 -- ----------------------------
 -- Table structure for product
@@ -114,7 +164,7 @@ CREATE TABLE `product`  (
   PRIMARY KEY (`product_id`) USING BTREE,
   INDEX `category_id`(`category_id`) USING BTREE,
   CONSTRAINT `product_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `product_category` (`category_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 272 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 271 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of product
@@ -400,7 +450,7 @@ CREATE TABLE `product_category`  (
   `category_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `parent_id` int NULL DEFAULT NULL,
   PRIMARY KEY (`category_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of product_category
@@ -423,7 +473,7 @@ CREATE TABLE `user`  (
   `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
   PRIMARY KEY (`user_id`) USING BTREE,
   UNIQUE INDEX `username`(`username`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of user

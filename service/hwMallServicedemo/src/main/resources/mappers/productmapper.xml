@@ -62,7 +62,7 @@
 
     <!-- 根据分类ID分页查询商品 -->
     <select id="getProductsByCategoryWithPage" resultType="map">
-        SELECT product_id, name, price, stock, description, category_id 
+        SELECT product_id, name, price, stock, description, category_id, image_url
         FROM product 
         WHERE category_id = #{category_id}
         ORDER BY product_id DESC

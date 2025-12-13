@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.peng.hwmallservicedemo.repository.order.OrderItemRepository">
+
+    <!-- 结果映射：与数据库表 `order_product` 字段匹配，关联查询product表获取商品名称和图片 -->
+    <resultMap id="OrderItemResultMap" type="com.peng.hwmallservicedemo.model.order.OrderItem">
+        <id property="orderProductId" column="order_product_id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="productId" column="product_id"/>
+        <result property="productName" column="product_name"/>
+        <result property="productImage" column="product_image"/>
+        <result property="price" column="price"/>
+        <result property="quantity" column="quantity"/>
+        <result property="totalPrice" column="total_price"/>
+    </resultMap>
+
+    <!-- 插入订单商品 -->
+    <insert id="insert" parameterType="com.peng.hwmallservicedemo.model.order.OrderItem" useGeneratedKeys="true" keyProperty="orderProductId">
+        INSERT INTO order_product (order_id, product_id, quantity, price)
+        VALUES (#{orderId}, #{productId}, #{quantity}, #{price})
+    </insert>
+
+    <!-- 根据订单ID查询订单商品列表，关联product表获取商品名称和图片 -->
+    <select id="findByOrderId" parameterType="long" resultMap="OrderItemResultMap">
+        SELECT 
+            op.order_product_id,
+            op.order_id,
+            op.product_id,
+            p.name AS product_name,
+            p.image_url AS product_image,
+            op.price,
+            op.quantity,
+            (op.price * op.quantity) AS total_price
+        FROM order_product op
+        LEFT JOIN product p ON op.product_id = p.product_id
+        WHERE op.order_id = #{orderId}
+    </select>
+
+</mapper>
+

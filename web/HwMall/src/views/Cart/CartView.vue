@@ -25,6 +25,7 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { useRouter } from 'vue-router'
 import Navbar from '@/components/Layout/Navbar.vue'
 import Footer from '@/components/Layout/Footer.vue'
 import Cart from '@/components/Cart/Cart.vue'
@@ -34,6 +35,8 @@ import {
   removeCartItem,
   clearCart
 } from '@/api/cart.js'
+
+const router = useRouter()
 
 const cartItems = ref([])
 const loading = ref(false)
@@ -87,7 +90,7 @@ const loadCartList = async () => {
         quantity: Number(i.quantity ?? i.qty ?? 0),
         stock: Number(i.stock ?? 0),
         subtotal: Number(i.subtotal ?? (i.price ? (Number(i.price) * Number(i.quantity || 0)) : 0)),
-        productImage: i.productImage ?? i.image ?? ''
+        productImage: i.productImage ?? i.image ?? i.image_url ?? i.product_image ?? ''
       }))
 
       // 如果接口返回 code !== 200 且没有数组，则报错提示
@@ -163,11 +166,16 @@ const handleClearCart = async () => {
 
 const handleCheckout = (selectedItems) => {
   // 跳转到订单确认页
-  // 这里可以将选中的商品信息传递给订单页面
-  console.log('选中的商品:', selectedItems)
-  // 实际项目中应该使用路由跳转
-  // router.push({ name: 'OrderConfirm', params: { items: selectedItems } })
-  alert('跳转到订单确认页（功能待实现）')
+  if (!selectedItems || selectedItems.length === 0) {
+    alert('请至少选择一件商品')
+    return
+  }
+  
+  // 将选中的商品信息保存到localStorage
+  localStorage.setItem('checkoutItems', JSON.stringify(selectedItems))
+  
+  // 跳转到订单确认页面
+  router.push('/order/confirm')
 }
 
 const goShopping = () => {
